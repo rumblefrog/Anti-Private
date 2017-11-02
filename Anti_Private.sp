@@ -28,8 +28,8 @@ enum RequestType
 
 enum DealMethod
 {
-	m_KICK = 1,
-	m_WARN
+	d_KICK = 1,
+	d_WARN
 }
 
 enum FailMethod
@@ -169,13 +169,30 @@ void ParseInventory(const char[] sBody, int iClient)
 }
 
 void HandleDeal(RequestType iType, int iClient)
-{
-	if (iDealMethod = d_KICK)
-		if (iType == t_PROFILE)
-			KickClient(iClient, "%T", "Private Profile");
-		else if (iType == t_INVENTORY)
-			KickClient(iClient, "%T", "Private Inventory");
-		
+{		
+	switch (iDealMethod)
+	{
+		case d_KICK:
+		{
+			switch (iType)
+			{
+				case t_PROFILE:
+					KickClient(iClient, "%T", "Private Profile");
+				case t_INVENTORY:
+					KickClient(iClient, "%T", "Private Inventory");
+			}
+		}
+		case d_WARN:
+		{
+			switch (iType)
+			{
+				case t_PROFILE:
+					PrintToChat(iClient, "[Anti Private] %T", "Private Profile");
+				case t_INVENTORY:
+					PrintToChat(iClient, "[Anti Private] %T", "Private Inventory");
+			}
+		}
+	}
 }
 
 void HandleHTTPError(int iClient)
