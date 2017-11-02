@@ -20,6 +20,12 @@
 #define PlayerURL "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
 #define InventoryURL "https://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/"
 
+enum RequestType
+{
+	t_PROFILE,
+	t_INVENTORY
+}
+
 enum DealMethod
 {
 	m_KICK = 1,
@@ -69,6 +75,8 @@ public void OnPluginStart()
 	cFail.AddChangeHook(OnConVarChanged);
 	
 	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
+	
+	LoadTranslations("anti_private.phrases");
 }
 
 public Action CmdVoid(int iClient, int iArgs) {}
@@ -90,33 +98,70 @@ public void OnClientPostAdminCheck(int iClient)
 		Handle hPlayerRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, PlayerURL);
 		SteamWorks_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "key", sDKey);
 		SteamWorks_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "steamids", SteamID);
-		SteamWorks_SetHTTPRequestContextValue(hPlayerRequest, iClient);
-		SteamWorks_SetHTTPCallbacks(hPlayerRequest, OnSteamWorksHTTPComplete);
-		SteamWorks_SendHTTPRequest(hPlayerRequest);
+		SteamWorks_SetHTTPRequestContextValue(hPlayerRequest, iClient, t_PROFILE);
+		SteamWorks_SetHTTPCallbacks(hPlayerRequest, OnSteamWorksHTTPComplete); 
+		if (!SteamWorks_SendHTTPRequest(hPlayerRequest))
+			HandleHTTPError(iClient);
 	}
 	else if (STEAMTOOLS_AVAILABLE())
 	{
 		HTTPRequestHandle hPlayerRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, PlayerURL);
 		Steam_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "key", sDKey);
 		Steam_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "steamids", SteamID);
-		Steam_SendHTTPRequest(hPlayerRequest, OnSteamToolsHTTPComplete, iClient);
+		
+		DataPack pData = new DataPack();
+		
+		pData.WriteCell(iClient);
+		pData.WriteCell(t_PROFILE);
+		
+		
+		if (!Steam_SendHTTPRequest(hPlayerRequest, OnSteamToolsHTTPComplete, iClient))
+			HandleHTTPError(iClient);
 	}
-	
 }
 
-public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bRequestSuccessful, EHTTPStatusCode eStatusCode, any iClient)
+public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bRequestSuccessful, EHTTPStatusCode eStatusCode, int iClient, RequestType iType)
+{
+	if (bRequestSuccessful && eStatusCode == k_EHTTPStatusCode200OK)
+	{
+		int iSize;
+		
+		SteamWorks_GetHTTPResponseBodySize(hRequest, iSize);
+		
+		char[] sBody = new char[iSize];
+		
+		SteamWorks_GetHTTPResponseBodyData(hRequest, sBody, iSize);
+		
+		if (iType == t_PROFILE)
+			ParseProfile(sBody, iClient);
+		else if (iType == t_INVENTORY)
+			ParseInventory(sBody, iClient);
+	} 
+	else
+		HandleHTTPError(iClient);
+}
+
+public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestSuccessful, HTTPStatusCode statusCode, DataPack pData)
+{
+	pData.Reset();
+}
+
+void ParseProfile(const char[] sBody, int iClient)
+{
+	Handle hJson = json_load(sBody);
+}
+
+void ParseInventory(const char[] sBody, int iClient)
 {
 	
 }
 
-public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestSuccessful, HTTPStatusCode statusCode, any iClient)
+void HandleHTTPError(int iClient)
 {
-	
-}
-
-void HandleError(int iClient)
-{
-	
+	if (iFailMethod == f_KICK)
+		KickClient(iClient, "%T", "Error");
+		
+	LogError("Failed to send HTTP request (Is Steam Down?)");
 }
 
 public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
