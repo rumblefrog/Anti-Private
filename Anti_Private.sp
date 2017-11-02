@@ -144,6 +144,9 @@ public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bReques
 public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestSuccessful, HTTPStatusCode statusCode, DataPack pData)
 {
 	pData.Reset();
+	
+	int iClient = pData.ReadCell();
+	RequestType iType = view_as<RequestType>(pData.ReadCell());
 }
 
 void ParseProfile(const char[] sBody, int iClient)
@@ -157,7 +160,35 @@ void ParseProfile(const char[] sBody, int iClient)
 	
 	if (iState == 3)
 	{
-		// Send request for inventory
+		char SteamID[64];
+	
+		GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
+	
+		if (STEAMWORKS_AVAILABLE())
+		{
+			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
+			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
+			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
+			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_PROFILE);
+			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete); 
+			if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
+				HandleHTTPError(iClient);
+		}
+		else if (STEAMTOOLS_AVAILABLE())
+		{
+			HTTPRequestHandle hInventoryRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, InventoryURL);
+			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
+			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
+		
+			DataPack pData = new DataPack();
+		
+			pData.WriteCell(iClient);
+			pData.WriteCell(t_INVENTORY);
+		
+		
+			if (!Steam_SendHTTPRequest(hInventoryRequest, OnSteamToolsHTTPComplete, iClient))
+				HandleHTTPError(iClient);
+		}
 	}
 	else
 		HandleDeal(t_PROFILE, iClient);
@@ -177,9 +208,9 @@ void HandleDeal(RequestType iType, int iClient)
 			switch (iType)
 			{
 				case t_PROFILE:
-					KickClient(iClient, "%T", "Private Profile");
+					KickClient(iClient, "[Anti Private] %T", "Private Profile");
 				case t_INVENTORY:
-					KickClient(iClient, "%T", "Private Inventory");
+					KickClient(iClient, "[Anti Private] %T", "Private Inventory");
 			}
 		}
 		case d_WARN:
