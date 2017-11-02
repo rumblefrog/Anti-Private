@@ -3,7 +3,7 @@
 #define DEBUG
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "0.0.0"
+#define PLUGIN_VERSION "0.0.1"
 
 #include <sourcemod>
 #include <smjansson>
@@ -15,7 +15,7 @@
 #pragma newdecls required
 
 #define STEAMTOOLS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "Steam_CreateHTTPRequest") == FeatureStatus_Available)
-#define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_WriteHTTPResponseBodyToFile") == FeatureStatus_Available)
+#define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available)
 
 #define PlayerURL "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
 #define InventoryURL "https://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/"
@@ -212,7 +212,14 @@ void ParseProfile(const char[] sBody, int iClient)
 
 void ParseInventory(const char[] sBody, int iClient)
 {
+	Handle hJson = json_load(sBody);
 	
+	Handle hResult = json_object_get(hJson, "result");
+	
+	int iState = json_object_get_int(hResult, "status");
+	
+	if (iState != 1)
+		HandleDeal(t_INVENTORY, iClient);
 }
 
 void HandleDeal(RequestType iType, int iClient)
@@ -259,5 +266,3 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 	if (convar == cFail)
 		iFailMethod = view_as<FailMethod>(cFail.IntValue);
 }
-
-
