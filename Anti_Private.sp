@@ -90,11 +90,32 @@ public void OnClientPostAdminCheck(int iClient)
 		Handle hPlayerRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, PlayerURL);
 		SteamWorks_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "key", sDKey);
 		SteamWorks_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "steamids", SteamID);
+		SteamWorks_SetHTTPRequestContextValue(hPlayerRequest, iClient);
+		SteamWorks_SetHTTPCallbacks(hPlayerRequest, OnSteamWorksHTTPComplete);
+		SteamWorks_SendHTTPRequest(hPlayerRequest);
 	}
 	else if (STEAMTOOLS_AVAILABLE())
 	{
-		
+		HTTPRequestHandle hPlayerRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, PlayerURL);
+		Steam_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "key", sDKey);
+		Steam_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "steamids", SteamID);
+		Steam_SendHTTPRequest(hPlayerRequest, OnSteamToolsHTTPComplete, iClient);
 	}
+	
+}
+
+public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bRequestSuccessful, EHTTPStatusCode eStatusCode, any iClient)
+{
+	
+}
+
+public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestSuccessful, HTTPStatusCode statusCode, any iClient)
+{
+	
+}
+
+void HandleError(int iClient)
+{
 	
 }
 

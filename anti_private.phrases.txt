@@ -1,0 +1,15 @@
+"Phrases"
+{
+	"Private Profile"
+	{
+		"en"	"Please make your Steam profile public"
+	}
+	"Private Inventory"
+	{
+		"en"	"Please make your Steam inventory public"
+	}
+	"Error"
+	{
+		"en"	"We're having trouble validating your profile publicity, please try again later"
+	}
+}
