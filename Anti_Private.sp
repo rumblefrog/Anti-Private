@@ -66,6 +66,8 @@ public void OnPluginStart()
 			InventoryURL = "https://api.steampowered.com/IEconItems_570/GetPlayerItems/v1/";
 		case Engine_Portal2:
 			InventoryURL = "https://api.steampowered.com/IEconItems_620/GetPlayerItems/v1/";
+		case Engine_CSGO:
+			InventoryURL = "N/A";
 		default:
 			SetFailState("This game is not supported");
 	}
@@ -189,6 +191,9 @@ void ParseProfile(const char[] sBody, int iClient)
 	
 	if (iState == 3)
 	{
+		if (GetEngineVersion() == Engine_CSGO)
+			return;
+		
 		char SteamID[64];
 	
 		GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
