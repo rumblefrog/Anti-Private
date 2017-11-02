@@ -3,13 +3,16 @@
 	"Private Profile"
 	{
 		"en"	"Please make your Steam profile public"
+		"hu"	"Kérlek állítsd a Steam profilod publikusra!"
 	}
 	"Private Inventory"
 	{
 		"en"	"Please make your Steam inventory public"
+		"hu"	"Kérlek állítsd a Steam raktárad publikusra!
 	}
 	"Error"
 	{
 		"en"	"We're having trouble validating your profile publicity, please try again later"
+		"hu"	"Probléma van a publikusság ellenőrzésével, kérlek próbáld újra később!"
 	}
 }
