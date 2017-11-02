@@ -7,9 +7,15 @@
 
 #include <sourcemod>
 #include <smjansson>
+#undef REQUIRE_EXTENSIONS
 #include <SteamWorks>
+#include <steamtools>
+#define REQUIRE_EXTENSIONS
 
 #pragma newdecls required
+
+#define STEAMTOOLS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "Steam_CreateHTTPRequest") == FeatureStatus_Available)
+#define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_WriteHTTPResponseBodyToFile") == FeatureStatus_Available)
 
 #define PlayerURL "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
 #define InventoryURL "https://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/"
@@ -29,6 +35,7 @@ enum FailMethod
 ConVar cKey, cDeal, cFail;
 
 char sDKey[64];
+
 DealMethod iDealMethod;
 FailMethod iFailMethod;
 
@@ -43,6 +50,9 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	if (!STEAMTOOLS_AVAILABLE() && !STEAMWORKS_AVAILABLE())
+		SetFailState("This plugin requires either SteamWorks OR SteamTools");
+	
 	CreateConVar("sm_anti_private_version", PLUGIN_VERSION, "Anti Private Version", FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
 	cKey = CreateConVar("sm_anti_private_key", "", "Steam Developer API Key", FCVAR_NONE | FCVAR_PROTECTED);
@@ -58,12 +68,34 @@ public void OnPluginStart()
 	iFailMethod = view_as<FailMethod>(cFail.IntValue);
 	cFail.AddChangeHook(OnConVarChanged);
 	
-	
+	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
 }
+
+public Action CmdVoid(int iClient, int iArgs) {}
 
 public void OnClientPostAdminCheck(int iClient)
 {
-
+	if (StrEqual(sDKey, ""))
+		return;
+	
+	if (CheckCommandAccess(iClient, "anti_private_admin", ADMFLAG_RESERVATION))
+		return;
+		
+	char SteamID[64];
+	
+	GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
+		
+	if (STEAMWORKS_AVAILABLE())
+	{
+		Handle hPlayerRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, PlayerURL);
+		SteamWorks_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "key", sDKey);
+		SteamWorks_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "steamids", SteamID);
+	}
+	else if (STEAMTOOLS_AVAILABLE())
+	{
+		
+	}
+	
 }
 
 public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
