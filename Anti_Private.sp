@@ -18,7 +18,6 @@
 #define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available)
 
 #define PlayerURL "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
-#define InventoryURL "https://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/"
 
 enum RequestType
 {
@@ -40,7 +39,7 @@ enum FailMethod
 
 ConVar cKey, cDeal, cFail;
 
-char sDKey[64];
+char sDKey[64], InventoryURL[256];
 
 DealMethod iDealMethod;
 FailMethod iFailMethod;
@@ -58,6 +57,18 @@ public void OnPluginStart()
 {
 	if (!STEAMTOOLS_AVAILABLE() && !STEAMWORKS_AVAILABLE())
 		SetFailState("This plugin requires either SteamWorks OR SteamTools");
+		
+	switch (GetEngineVersion())
+	{
+		case Engine_TF2:
+			InventoryURL = "https://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/";
+		case Engine_DOTA:
+			InventoryURL = "https://api.steampowered.com/IEconItems_570/GetPlayerItems/v1/";
+		case Engine_Portal2:
+			InventoryURL = "https://api.steampowered.com/IEconItems_620/GetPlayerItems/v1/";
+		default:
+			SetFailState("This game is not supported");
+	}
 	
 	CreateConVar("sm_anti_private_version", PLUGIN_VERSION, "Anti Private Version", FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
@@ -77,6 +88,8 @@ public void OnPluginStart()
 	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
 	
 	LoadTranslations("anti_private.phrases");
+	
+	AutoExecConfig(true, "anti_private");
 }
 
 public Action CmdVoid(int iClient, int iArgs) {}
