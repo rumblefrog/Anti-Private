@@ -147,6 +147,22 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 	
 	int iClient = pData.ReadCell();
 	RequestType iType = view_as<RequestType>(pData.ReadCell());
+	
+	if (requestSuccessful && statusCode == HTTPStatusCode_OK)
+	{
+		int iSize = Steam_GetHTTPResponseBodySize(HTTPRequest);
+		
+		char[] sBody = new char[iSize];
+		
+		Steam_GetHTTPResponseBodyData(HTTPRequest, sBody, iSize);
+		
+		if (iType == t_PROFILE)
+			ParseProfile(sBody, iClient);
+		else if (iType == t_INVENTORY)
+			ParseInventory(sBody, iClient);
+	}
+	else
+		HandleHTTPError(iClient);
 }
 
 void ParseProfile(const char[] sBody, int iClient)
