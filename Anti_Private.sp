@@ -149,11 +149,33 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 void ParseProfile(const char[] sBody, int iClient)
 {
 	Handle hJson = json_load(sBody);
+	
+	Handle hResponse = json_object_get(hJson, "response");
+	Handle hPlayers = json_object_get(hResponse, "players");
+	Handle hPlayer = json_array_get(hPlayers, 0);
+	int iState = json_object_get_int(hPlayer, "communityvisibilitystate");
+	
+	if (iState == 3)
+	{
+		// Send request for inventory
+	}
+	else
+		HandleDeal(t_PROFILE, iClient);
 }
 
 void ParseInventory(const char[] sBody, int iClient)
 {
 	
+}
+
+void HandleDeal(RequestType iType, int iClient)
+{
+	if (iDealMethod = d_KICK)
+		if (iType == t_PROFILE)
+			KickClient(iClient, "%T", "Private Profile");
+		else if (iType == t_INVENTORY)
+			KickClient(iClient, "%T", "Private Inventory");
+		
 }
 
 void HandleHTTPError(int iClient)
