@@ -31,7 +31,9 @@ script:
 deploy:
   provider: releases
   api_key: "$githubkey"
-  file: "$TRAVIS_BUILD_DIR/addons/sourcemod/scripting/compiled/Anti_Private.smx"
+  file: 
+    - "$TRAVIS_BUILD_DIR/addons/sourcemod/scripting/compiled/Anti_Private.smx"
+    - "$TRAVIS_BUILD_DIR/anti_private.phrases.txt"
   skip_cleanup: true
   on:
     tags: true
