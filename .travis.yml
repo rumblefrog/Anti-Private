@@ -17,18 +17,20 @@ before_script:
     - SMPACKAGE="https://www.sourcemod.net/smdrop/$SMVERSION/$SMLATEST"
     - wget $SMPACKAGE
     - tar -xzf $(basename "$SMPACKAGE")
-    - cp CIDR_Blocker.sp addons/sourcemod/scripting/
+    - cp Anti_Private.sp addons/sourcemod/scripting/
+    - cp include/smjansson.inc addons/sourcemod/scripting/include
+    - cp include/SteamWorks.inc addons/sourcemod/scripting/include
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - chmod +x compile.sh
     
 script: 
-    - ./compile.sh CIDR_Blocker.sp   
+    - ./compile.sh Anti_Private.sp   
   
 deploy:
   provider: releases
   api_key: "$githubkey"
-  file: "$TRAVIS_BUILD_DIR/addons/sourcemod/scripting/compiled/CIDR_Blocker.smx"
+  file: "$TRAVIS_BUILD_DIR/addons/sourcemod/scripting/compiled/Anti_Private.smx"
   skip_cleanup: true
   on:
     tags: true
