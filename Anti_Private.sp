@@ -84,10 +84,8 @@ public void OnPluginStart()
 			InventoryURL = "https://api.steampowered.com/IEconItems_570/GetPlayerItems/v1/";
 		case Engine_Portal2:
 			InventoryURL = "https://api.steampowered.com/IEconItems_620/GetPlayerItems/v1/";
-		case Engine_CSGO:
-			InventoryURL = "N/A";
 		default:
-			SetFailState("This game is not supported");
+			LogMessage("This game does not support private inventory check");
 	}
 	
 	CreateConVar("sm_anti_private_version", PLUGIN_VERSION, "Anti Private Version", FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
@@ -208,9 +206,13 @@ void ParseProfile(const char[] sBody, int iClient)
 	int iState = json_object_get_int(hPlayer, "communityvisibilitystate");
 	
 	if (iState == 3)
-	{
-		if (GetEngineVersion() == Engine_CSGO)
-			return;
+	{		
+		switch (GetEngineVersion())
+		{
+			case Engine_TF2, Engine_DOTA, Engine_Portal2: {}
+			default:
+				return;
+		}
 		
 		char SteamID[64];
 	
