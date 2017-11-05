@@ -1,6 +1,6 @@
 /*
 Anti Private - A sourcemod plugin that kicks private profile & inventory
-Copyright (C) 2017  RumbleFrog
+Copyright (C) 2017 RumbleFrog
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -94,15 +94,6 @@ public void OnPluginStart()
 	cDeal = CreateConVar("sm_anti_private_deal_method", "1", "1 - Kick, 2 - Warn", FCVAR_NONE, true, 1.0, true, 2.0);
 	cFail = CreateConVar("sm_anti_private_fail_method", "1", "1 - Allow them to stay on the server, 2 - Kicks them from the server", FCVAR_NONE, true, 1.0, true, 2.0);
 	
-	cKey.GetString(sDKey, sizeof sDKey);
-	cKey.AddChangeHook(OnConVarChanged);
-	
-	iDealMethod = view_as<DealMethod>(cDeal.IntValue);
-	cDeal.AddChangeHook(OnConVarChanged);
-	
-	iFailMethod = view_as<FailMethod>(cFail.IntValue);
-	cFail.AddChangeHook(OnConVarChanged);
-	
 	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
 	
 	LoadTranslations("anti_private.phrases");
@@ -110,11 +101,29 @@ public void OnPluginStart()
 	AutoExecConfig(true, "anti_private");
 }
 
+public void OnConfigsExecuted()
+{
+	cKey.GetString(sDKey, sizeof sDKey);
+	cKey.AddChangeHook(OnConVarChanged);
+	
+	if (StrEqual(sDKey, ""))
+		LogError("Steam Developer API Key not set");
+	
+	iDealMethod = view_as<DealMethod>(cDeal.IntValue);
+	cDeal.AddChangeHook(OnConVarChanged);
+	
+	iFailMethod = view_as<FailMethod>(cFail.IntValue);
+	cFail.AddChangeHook(OnConVarChanged);
+}
+
 public Action CmdVoid(int iClient, int iArgs) {}
 
 public void OnClientPostAdminCheck(int iClient)
 {
 	if (StrEqual(sDKey, ""))
+		return;
+		
+	if (!IsValidClient(iClient))
 		return;
 	
 	if (CheckCommandAccess(iClient, "anti_private_admin", ADMFLAG_RESERVATION))
@@ -203,6 +212,10 @@ void ParseProfile(const char[] sBody, int iClient)
 	Handle hResponse = json_object_get(hJson, "response");
 	Handle hPlayers = json_object_get(hResponse, "players");
 	Handle hPlayer = json_array_get(hPlayers, 0);
+	
+	if (hPlayer == INVALID_HANDLE)
+		return;
+	
 	int iState = json_object_get_int(hPlayer, "communityvisibilitystate");
 	
 	if (iState == 3)
@@ -290,7 +303,7 @@ void HandleDeal(RequestType iType, int iClient)
 void HandleHTTPError(int iClient)
 {
 	if (iFailMethod == f_KICK)
-		KickClient(iClient, "%T", "Error");
+		KickClient(iClient, "%T", "Error", iClient);
 		
 	LogError("Failed to send HTTP request (Is Steam Down?)");
 }
@@ -303,4 +316,19 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 		iDealMethod = view_as<DealMethod>(cDeal.IntValue);
 	if (convar == cFail)
 		iFailMethod = view_as<FailMethod>(cFail.IntValue);
+}
+
+stock bool IsValidClient(int iClient, bool bAlive = false)
+{
+	if (iClient >= 1 &&
+	iClient <= MaxClients &&
+	IsClientConnected(iClient) &&
+	IsClientInGame(iClient) &&
+	!IsFakeClient(iClient) &&
+	(bAlive == false || IsPlayerAlive(iClient)))
+	{
+		return true;
+	}
+
+	return false;
 }
