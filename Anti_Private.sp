@@ -1,6 +1,6 @@
 /*
 Anti Private - A sourcemod plugin that kicks private profile & inventory
-Copyright (C) 2017 RumbleFrog
+Copyright (C) 2017  RumbleFrog
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ public void OnPluginStart()
 	CreateConVar("sm_anti_private_version", PLUGIN_VERSION, "Anti Private Version", FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
 	cKey = CreateConVar("sm_anti_private_key", "", "Steam Developer API Key", FCVAR_NONE | FCVAR_PROTECTED);
-	cDeal = CreateConVar("sm_anti_private_deal_method", "1", "1 - Kick, 2 - Warn", FCVAR_NONE, true, 1.0, true, 2.0);
+	cDeal = CreateConVar("sm_anti_private_deal_method", "1", "1 - Kicks them from the server, 2 - Warns them", FCVAR_NONE, true, 1.0, true, 2.0);
 	cFail = CreateConVar("sm_anti_private_fail_method", "1", "1 - Allow them to stay on the server, 2 - Kicks them from the server", FCVAR_NONE, true, 1.0, true, 2.0);
 	
 	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
