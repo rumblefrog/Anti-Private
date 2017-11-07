@@ -292,9 +292,9 @@ void HandleDeal(RequestType iType, int iClient)
 			switch (iType)
 			{
 				case t_PROFILE:
-					PrintToChat(iClient, "[Anti Private] %T", "Private Profile");
+					PrintCenterText(iClient, "[Anti Private] %T", "Private Profile", iClient);
 				case t_INVENTORY:
-					PrintToChat(iClient, "[Anti Private] %T", "Private Inventory");
+					PrintCenterText(iClient, "[Anti Private] %T", "Private Inventory", iClient);
 			}
 		}
 	}
