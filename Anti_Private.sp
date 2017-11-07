@@ -236,7 +236,7 @@ void ParseProfile(const char[] sBody, int iClient)
 			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
 			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
 			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
-			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_PROFILE);
+			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_INVENTORY);
 			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete); 
 			if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
 				HandleHTTPError(iClient);
@@ -282,9 +282,9 @@ void HandleDeal(RequestType iType, int iClient)
 			switch (iType)
 			{
 				case t_PROFILE:
-					KickClient(iClient, "[Anti Private] %T", "Private Profile");
+					KickClient(iClient, "[Anti Private] %T", "Private Profile", iClient);
 				case t_INVENTORY:
-					KickClient(iClient, "[Anti Private] %T", "Private Inventory");
+					KickClient(iClient, "[Anti Private] %T", "Private Inventory", iClient);
 			}
 		}
 		case d_WARN:
