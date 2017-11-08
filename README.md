@@ -36,6 +36,14 @@
 
 5. Reload the plugin (`sm plugins reload Anti_Private`), change the map, **OR** restart the server
 
+# Notes
+
+- With high traffic servers, you may exceed Steam's API rate limit
+- Since this plugin depends on Steam, during Steam maintenance/outage (*Tuesday*), this plugin may not work
+
+# Translations
+
+If you wish to contribute to the phrases file, please fork this repository and open a pull request
 
 # Download
 
