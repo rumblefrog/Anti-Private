@@ -24,9 +24,12 @@
 # Installation
 
 1. Extract **Anti_Private.smx** to **/addons/sourcemod/plugins**
+
 2. Load the plugin (`sm plugins load Anti_Private`), change the map, **OR** restart the server
+
 3. Edit **/cfg/sourcemod/anti_private.cfg**
 	- Update `sm_anti_private_key` with value obtained from https://steamcommunity.com/dev/apikey
+
 4. Reload the plugin (`sm plugins reload Anti_Private`), change the map, **OR** restart the server
 
 
