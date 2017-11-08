@@ -23,6 +23,12 @@
 
 - **sm_anti_private_key** Steam Developer API Key; Required for this plugin to work
 
+# Prerequisites
+
+- SMJansson - (https://forums.alliedmods.net/showthread.php?t=184604)
+
+- SteamWorks (http://users.alliedmods.net/~kyles/builds/SteamWorks/) **OR** SteamTools (https://builds.limetech.io/?p=steamtools)
+
 # Installation
 
 1. Extract **Anti_Private.smx** to **/addons/sourcemod/plugins**
