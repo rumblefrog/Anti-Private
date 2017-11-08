@@ -137,6 +137,7 @@ public void OnClientPostAdminCheck(int iClient)
 		SteamWorks_SetHTTPRequestGetOrPostParameter(hPlayerRequest, "steamids", SteamID);
 		SteamWorks_SetHTTPRequestContextValue(hPlayerRequest, iClient, t_PROFILE);
 		SteamWorks_SetHTTPCallbacks(hPlayerRequest, OnSteamWorksHTTPComplete); 
+		
 		if (!SteamWorks_SendHTTPRequest(hPlayerRequest))
 			HandleHTTPError(iClient);
 	}
@@ -150,7 +151,6 @@ public void OnClientPostAdminCheck(int iClient)
 		
 		pData.WriteCell(iClient);
 		pData.WriteCell(t_PROFILE);
-		
 		
 		if (!Steam_SendHTTPRequest(hPlayerRequest, OnSteamToolsHTTPComplete, iClient))
 			HandleHTTPError(iClient);
