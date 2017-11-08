@@ -18,8 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma semicolon 1
 
-#define DEBUG
-
 #define PLUGIN_AUTHOR "Fishy"
 #define PLUGIN_VERSION "0.0.1"
 
@@ -234,10 +232,12 @@ void ParseProfile(const char[] sBody, int iClient)
 		if (STEAMWORKS_AVAILABLE())
 		{
 			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
+			
 			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
 			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
 			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_INVENTORY);
-			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete); 
+			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete);
+			
 			if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
 				HandleHTTPError(iClient);
 		}
@@ -251,7 +251,6 @@ void ParseProfile(const char[] sBody, int iClient)
 		
 			pData.WriteCell(iClient);
 			pData.WriteCell(t_INVENTORY);
-		
 		
 			if (!Steam_SendHTTPRequest(hInventoryRequest, OnSteamToolsHTTPComplete, iClient))
 				HandleHTTPError(iClient);
@@ -292,9 +291,9 @@ void HandleDeal(RequestType iType, int iClient)
 			switch (iType)
 			{
 				case t_PROFILE:
-					PrintCenterText(iClient, "[Anti Private] %T", "Private Profile", iClient);
+					PrintToChat(iClient, "[Anti Private] %T", "Private Profile", iClient);
 				case t_INVENTORY:
-					PrintCenterText(iClient, "[Anti Private] %T", "Private Inventory", iClient);
+					PrintToChat(iClient, "[Anti Private] %T", "Private Inventory", iClient);
 			}
 		}
 	}
