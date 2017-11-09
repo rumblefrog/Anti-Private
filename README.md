@@ -44,8 +44,8 @@
 
 # Notes
 
-- Friends-only will be consider private as long as the owner of the API key is not friend with that individual
-- Steam takes account of owner's relation in their API
+- Friends-only will be considered private as long as the owner of the API key is not friend with that individual
+- Steam takes account of owner's relation to their API
 - With high traffic servers, you may exceed Steam's API rate limit
 - Since this plugin depends on Steam, during Steam maintenance/outage (*Tuesday*), this plugin may not work
 
