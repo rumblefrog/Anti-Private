@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "1.0.0"
+#define PLUGIN_VERSION "1.0.1"
 
 #include <sourcemod>
 #include <smjansson>
@@ -214,8 +214,9 @@ void ParseProfile(const char[] sBody, int iClient)
 		return;
 	
 	int iState = json_object_get_int(hPlayer, "communityvisibilitystate");
+	int iProfile = json_object_get_int(hPlayer, "profilestate");
 	
-	if (iState == 3)
+	if (iState == 3 && iProfile == 1)
 	{		
 		switch (GetEngineVersion())
 		{

@@ -44,6 +44,7 @@
 
 # Notes
 
+- Profiles that aren't configured are also blocked
 - Friends-only will be considered private as long as the owner of the API key is not friend with that individual
 - Steam takes account of owner's relation to their API
 - With high traffic servers, you may exceed Steam's API rate limit
