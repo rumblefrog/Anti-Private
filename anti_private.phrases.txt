@@ -15,7 +15,7 @@
 	"Error"
 	{
 		"en"	"We're having trouble validating your profile publicity, please try again later"
-		"es"	"Estamos teniendo dificultades validando la publicidad de tu perfil, por favor intente"
+		"es"	"Estamos teniendo dificultades validando la publicidad de tu perfil, por favor intente unirse nuevamente más tarde"
 		"hu"	"Probléma van a publikusság ellenőrzésével, kérlek próbáld újra később!"
 	}
 }
