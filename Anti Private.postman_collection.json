@@ -1,0 +1,117 @@
+{
+	"info": {
+		"name": "Anti Private",
+		"_postman_id": "7705cec9-51fd-a576-fd36-4ed87a1c7804",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TF2 Inventory",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status Is Successful\", () => {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.result.status).to.eql(1);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://api.steampowered.com/IEconItems_620/GetPlayerItems/v1/?key={{steamkey}}&steamid=76561198114606863",
+					"protocol": "http",
+					"host": [
+						"api",
+						"steampowered",
+						"com"
+					],
+					"path": [
+						"IEconItems_620",
+						"GetPlayerItems",
+						"v1",
+						""
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{steamkey}}",
+							"equals": true
+						},
+						{
+							"key": "steamid",
+							"value": "76561198114606863",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=2666C7DC59BA3D66C694D350643DF4C3&steamids=76561198114606863",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Community Visibility Is Visible\", () => {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.players[0].communityvisibilitystate).to.eql(3);",
+							"});",
+							"",
+							"pm.test(\"Profile Is Configured\", () => {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.players[0].profilestate).to.eql(1);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={{steamkey}}&steamids=76561198114606863",
+					"protocol": "http",
+					"host": [
+						"api",
+						"steampowered",
+						"com"
+					],
+					"path": [
+						"ISteamUser",
+						"GetPlayerSummaries",
+						"v0002",
+						""
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{steamkey}}",
+							"equals": true
+						},
+						{
+							"key": "steamids",
+							"value": "76561198114606863",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
