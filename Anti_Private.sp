@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "1.1.3"
+#define PLUGIN_VERSION "1.2.4"
 
 #include <sourcemod>
 #include <smjansson>
@@ -93,7 +93,7 @@ public void OnPluginStart()
 	cInventory = CreateConVar("sm_anti_private_inventory", "1", "0 - Disable inventory checking, 1 - Enable inventory checking", FCVAR_NONE, true, 0.0, true, 1.0);
 	cDeal = CreateConVar("sm_anti_private_deal_method", "1", "1 - Kicks them from the server, 2 - Warns them", FCVAR_NONE, true, 1.0, true, 2.0);
 	cFail = CreateConVar("sm_anti_private_fail_method", "1", "1 - Allow them to stay on the server, 2 - Kicks them from the server", FCVAR_NONE, true, 1.0, true, 2.0);
-	cLog = CreateConVar("sm_anti_private_log", "0", "0 - Disable logging, 1 - Enable logging", FCVAR_NONE, true, 0.0, true, 1.0);
+	cLog = CreateConVar("sm_anti_private_log", "1", "0 - Disable logging, 1 - Enable logging", FCVAR_NONE, true, 0.0, true, 1.0);
 	
 	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
 	
