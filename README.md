@@ -17,6 +17,8 @@
 
 # Convar
 
+- **sm_anti_private_inventory** Whether or not to check for private inventory (0 - Disable Inventory Checking, 1 - Enable Inventory Checking) [Default: **1.0**] (Min: **0.0**) (Max: **1.0**)
+
 - **sm_anti_private_deal_method** Method of action when private profile/inventory has been detected (1 - Kick, 2 - Warn) [Default: **1.0**] (Min: **1.0**) (Max: **2.0**)
 
 - **sm_anti_private_fail_method** Method of action when the plugin fails to fetch result (1 - Nothing, 2 - Kick) [Default: **1.0**] (Min: **1.0**) (Max: **2.0**)
