@@ -52,11 +52,11 @@ enum FailMethod
 	f_KICK,
 }
 
-ConVar cKey, cDeal, cFail, cInventory;
+ConVar cKey, cDeal, cFail, cInventory, cLog;
 
 char sDKey[64], InventoryURL[256];
 
-bool checkInventory = true;
+bool bInventory = true, bLog = true;
 
 DealMethod iDealMethod;
 FailMethod iFailMethod;
@@ -93,6 +93,7 @@ public void OnPluginStart()
 	cInventory = CreateConVar("sm_anti_private_inventory", "1", "0 - Disable inventory checking, 1 - Enable inventory checking", FCVAR_NONE, true, 0.0, true, 1.0);
 	cDeal = CreateConVar("sm_anti_private_deal_method", "1", "1 - Kicks them from the server, 2 - Warns them", FCVAR_NONE, true, 1.0, true, 2.0);
 	cFail = CreateConVar("sm_anti_private_fail_method", "1", "1 - Allow them to stay on the server, 2 - Kicks them from the server", FCVAR_NONE, true, 1.0, true, 2.0);
+	cLog = CreateConVar("sm_anti_private_log", "1", "0 - Disable logging, 1 - Enable logging", FCVAR_NONE, true, 0.0, true, 1.0);
 	
 	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
 	
@@ -109,7 +110,7 @@ public void OnConfigsExecuted()
 	if (StrEqual(sDKey, ""))
 		LogError("Steam Developer API Key not set");
 		
-	checkInventory = cInventory.BoolValue;
+	bInventory = cInventory.BoolValue;
 	cInventory.AddChangeHook(OnConVarChanged);
 	
 	iDealMethod = view_as<DealMethod>(cDeal.IntValue);
@@ -117,6 +118,9 @@ public void OnConfigsExecuted()
 	
 	iFailMethod = view_as<FailMethod>(cFail.IntValue);
 	cFail.AddChangeHook(OnConVarChanged);
+	
+	bLog = cLog.BoolValue;
+	cLog.AddChangeHook(OnConVarChanged);
 }
 
 public Action CmdVoid(int iClient, int iArgs) {}
@@ -145,7 +149,10 @@ public void OnClientPostAdminCheck(int iClient)
 		SteamWorks_SetHTTPCallbacks(hPlayerRequest, OnSteamWorksHTTPComplete); 
 		
 		if (!SteamWorks_SendHTTPRequest(hPlayerRequest))
+		{
 			HandleHTTPError(iClient);
+			LogRequest(iClient, t_PROFILE, false);
+		}
 	}
 	else if (STEAMTOOLS_AVAILABLE())
 	{
@@ -159,7 +166,10 @@ public void OnClientPostAdminCheck(int iClient)
 		pData.WriteCell(t_PROFILE);
 		
 		if (!Steam_SendHTTPRequest(hPlayerRequest, OnSteamToolsHTTPComplete, iClient))
+		{
 			HandleHTTPError(iClient);
+			LogRequest(iClient, t_PROFILE, false);
+		}
 	}
 }
 
@@ -179,9 +189,14 @@ public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bReques
 			ParseProfile(sBody, iClient);
 		else if (iType == t_INVENTORY)
 			ParseInventory(sBody, iClient);
+			
+		LogRequest(iClient, iType, true);
 	} 
 	else
+	{
 		HandleHTTPError(iClient);
+		LogRequest(iClient, iType, false);
+	}
 }
 
 public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestSuccessful, HTTPStatusCode statusCode, DataPack pData)
@@ -203,9 +218,14 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 			ParseProfile(sBody, iClient);
 		else if (iType == t_INVENTORY)
 			ParseInventory(sBody, iClient);
+			
+		LogRequest(iClient, iType, true);
 	}
 	else
+	{
 		HandleHTTPError(iClient);
+		LogRequest(iClient, iType, false);
+	}
 }
 
 void ParseProfile(const char[] sBody, int iClient)
@@ -224,7 +244,7 @@ void ParseProfile(const char[] sBody, int iClient)
 	
 	if (iState == 3 && iProfile == 1)
 	{
-		if (!checkInventory)
+		if (!bInventory)
 			return;
 		
 		switch (GetEngineVersion())
@@ -248,7 +268,10 @@ void ParseProfile(const char[] sBody, int iClient)
 			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete);
 			
 			if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
+			{
 				HandleHTTPError(iClient);
+				LogRequest(iClient, t_INVENTORY, false);
+			}
 		}
 		else if (STEAMTOOLS_AVAILABLE())
 		{
@@ -262,7 +285,10 @@ void ParseProfile(const char[] sBody, int iClient)
 			pData.WriteCell(t_INVENTORY);
 		
 			if (!Steam_SendHTTPRequest(hInventoryRequest, OnSteamToolsHTTPComplete, iClient))
+			{
 				HandleHTTPError(iClient);
+				LogRequest(iClient, t_INVENTORY, false);
+			}
 		}
 	}
 	else
@@ -316,16 +342,23 @@ void HandleHTTPError(int iClient)
 	LogError("Failed to send HTTP request (Is Steam Down?)");
 }
 
+void LogRequest(int iClient, RequestType iType, bool bSuccessful)
+{
+	
+}
+
 public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (convar == cKey)
 		cKey.GetString(sDKey, sizeof sDKey);
 	if (convar == cInventory)
-		checkInventory = cInventory.BoolValue;
+		bInventory = cInventory.BoolValue;
 	if (convar == cDeal)
 		iDealMethod = view_as<DealMethod>(cDeal.IntValue);
 	if (convar == cFail)
 		iFailMethod = view_as<FailMethod>(cFail.IntValue);
+	if (convar == cLog)
+		bLog = cLog.BoolValue;
 }
 
 stock bool IsValidClient(int iClient, bool bAlive = false)
