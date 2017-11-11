@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "1.0.1"
+#define PLUGIN_VERSION "1.0.3"
 
 #include <sourcemod>
 #include <smjansson>
@@ -48,8 +48,8 @@ enum DealMethod
 
 enum FailMethod
 {
-	f_KICK = 1,
-	f_STAY
+	f_STAY = 1,
+	f_KICK,
 }
 
 ConVar cKey, cDeal, cFail;
