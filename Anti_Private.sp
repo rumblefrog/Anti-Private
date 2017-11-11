@@ -54,7 +54,7 @@ enum FailMethod
 
 ConVar cKey, cDeal, cFail, cInventory, cLog;
 
-char sDKey[64], InventoryURL[256];
+char sDKey[64], InventoryURL[256], LogPath[PLATFORM_MAX_PATH];
 
 bool bInventory = true, bLog = true;
 
@@ -100,6 +100,8 @@ public void OnPluginStart()
 	LoadTranslations("anti_private.phrases");
 	
 	AutoExecConfig(true, "anti_private");
+	
+	BuildPath(Path_SM, LogPath, sizeof LogPath, "logs/anti_private.log");
 }
 
 public void OnConfigsExecuted()
@@ -344,7 +346,20 @@ void HandleHTTPError(int iClient)
 
 void LogRequest(int iClient, RequestType iType, bool bSuccessful)
 {
+	if (!bLog)
+		return;
+		
+	char sName[MAX_NAME_LENGTH], sSteamID[64];
 	
+	GetClientName(iClient, sName, sizeof sName);
+	GetClientAuthId(iClient, AuthId_Steam3, sSteamID, sizeof sSteamID);
+	
+	LogToFile(LogPath, "%s %s for %s (%s)",
+		(iType == t_PROFILE) ? "Profile request" : "Inventory request",
+		(bSuccessful) ? "succeed" : "failed",
+		sName,
+		sSteamID
+	);
 }
 
 public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
