@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "1.0.3"
+#define PLUGIN_VERSION "1.1.3"
 
 #include <sourcemod>
 #include <smjansson>
@@ -52,9 +52,11 @@ enum FailMethod
 	f_KICK,
 }
 
-ConVar cKey, cDeal, cFail;
+ConVar cKey, cDeal, cFail, cInventory;
 
 char sDKey[64], InventoryURL[256];
+
+bool checkInventory = true;
 
 DealMethod iDealMethod;
 FailMethod iFailMethod;
@@ -88,6 +90,7 @@ public void OnPluginStart()
 	CreateConVar("sm_anti_private_version", PLUGIN_VERSION, "Anti Private Version", FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
 	cKey = CreateConVar("sm_anti_private_key", "", "Steam Developer API Key", FCVAR_NONE | FCVAR_PROTECTED);
+	cInventory = CreateConVar("sm_anti_private_inventory", "1", "0 - Disable inventory checking, 1 - Enable inventory checking", FCVAR_NONE, true, 0.0, true, 1.0);
 	cDeal = CreateConVar("sm_anti_private_deal_method", "1", "1 - Kicks them from the server, 2 - Warns them", FCVAR_NONE, true, 1.0, true, 2.0);
 	cFail = CreateConVar("sm_anti_private_fail_method", "1", "1 - Allow them to stay on the server, 2 - Kicks them from the server", FCVAR_NONE, true, 1.0, true, 2.0);
 	
@@ -105,6 +108,9 @@ public void OnConfigsExecuted()
 	
 	if (StrEqual(sDKey, ""))
 		LogError("Steam Developer API Key not set");
+		
+	checkInventory = cInventory.BoolValue;
+	cInventory.AddChangeHook(OnConVarChanged);
 	
 	iDealMethod = view_as<DealMethod>(cDeal.IntValue);
 	cDeal.AddChangeHook(OnConVarChanged);
@@ -217,7 +223,10 @@ void ParseProfile(const char[] sBody, int iClient)
 	int iProfile = json_object_get_int(hPlayer, "profilestate");
 	
 	if (iState == 3 && iProfile == 1)
-	{		
+	{
+		if (!checkInventory)
+			return;
+		
 		switch (GetEngineVersion())
 		{
 			case Engine_TF2, Engine_DOTA, Engine_Portal2: {}
@@ -311,6 +320,8 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 {
 	if (convar == cKey)
 		cKey.GetString(sDKey, sizeof sDKey);
+	if (convar == cInventory)
+		checkInventory = cInventory.BoolValue;
 	if (convar == cDeal)
 		iDealMethod = view_as<DealMethod>(cDeal.IntValue);
 	if (convar == cFail)
