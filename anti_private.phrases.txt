@@ -4,15 +4,15 @@
 	{
 		"en"	"Please make your Steam profile public"
 		"es"	"Por favor haz tu perfil de Steam público"
-		"hu"	"Kérlek állítsd a Steam profilod publikusra!"
-		"fr"	"Veuillez rendre votre profil Steam public !"
+		"hu"	"Kérlek állítsd a Steam profilod publikusra"
+		"fr"	"Veuillez rendre votre profil Steam public"
 	}
 	"Private Inventory"
 	{
 		"en"	"Please make your Steam inventory public"
 		"es"	"Por favor haz tu inventario de Steam público"
-		"hu"	"Kérlek állítsd a Steam raktárad publikusra!
-		"fr"	"Veuillez rendre votre inventaire Steam public !"
+		"hu"	"Kérlek állítsd a Steam raktárad publikusra"
+		"fr"	"Veuillez rendre votre inventaire Steam public"
 	}
 	"Error"
 	{
