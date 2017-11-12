@@ -152,6 +152,7 @@ public void OnClientPostAdminCheck(int iClient)
 		
 		if (!SteamWorks_SendHTTPRequest(hPlayerRequest))
 		{
+			CloseHandle(hPlayerRequest);
 			HandleHTTPError(iClient);
 			LogRequest(iClient, t_PROFILE, false);
 		}
@@ -169,6 +170,7 @@ public void OnClientPostAdminCheck(int iClient)
 		
 		if (!Steam_SendHTTPRequest(hPlayerRequest, OnSteamToolsHTTPComplete, iClient))
 		{
+			Steam_ReleaseHTTPRequest(hPlayerRequest);
 			HandleHTTPError(iClient);
 			LogRequest(iClient, t_PROFILE, false);
 		}
@@ -199,6 +201,8 @@ public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bReques
 		HandleHTTPError(iClient);
 		LogRequest(iClient, iType, false);
 	}
+	
+	CloseHandle(hRequest);
 }
 
 public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestSuccessful, HTTPStatusCode statusCode, DataPack pData)
@@ -230,7 +234,6 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 	}
 	
 	Steam_ReleaseHTTPRequest(HTTPRequest);
-	HTTPRequest = INVALID_HTTP_HANDLE;
 }
 
 void ParseProfile(const char[] sBody, int iClient)
@@ -274,6 +277,7 @@ void ParseProfile(const char[] sBody, int iClient)
 			
 			if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
 			{
+				CloseHandle(hInventoryRequest);
 				HandleHTTPError(iClient);
 				LogRequest(iClient, t_INVENTORY, false);
 			}
@@ -291,6 +295,7 @@ void ParseProfile(const char[] sBody, int iClient)
 		
 			if (!Steam_SendHTTPRequest(hInventoryRequest, OnSteamToolsHTTPComplete, iClient))
 			{
+				Steam_ReleaseHTTPRequest(hInventoryRequest);
 				HandleHTTPError(iClient);
 				LogRequest(iClient, t_INVENTORY, false);
 			}
