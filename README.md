@@ -23,6 +23,8 @@
 
 - **sm_anti_private_fail_method** Method of action when the plugin fails to fetch result (1 - Nothing, 2 - Kick) [Default: **1.0**] (Min: **1.0**) (Max: **2.0**)
 
+- **sm_anti_private_log** Whether or not to log HTTP requests to file (0 - Disable logging, 1 - Enable logging) [Default: **1.0**] (Min: **0.0**) (Max: **1.0**)
+
 - **sm_anti_private_key** Steam Developer API Key; Required for this plugin to work
 
 # Prerequisites
