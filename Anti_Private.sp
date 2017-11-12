@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "1.2.4"
+#define PLUGIN_VERSION "1.2.5"
 
 #include <sourcemod>
 #include <smjansson>
@@ -28,7 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define REQUIRE_EXTENSIONS
 
 #pragma newdecls required
-#pragma dynamic 65535
 
 #define STEAMTOOLS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "Steam_CreateHTTPRequest") == FeatureStatus_Available)
 #define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available)
@@ -182,9 +181,14 @@ public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bReques
 {
 	if (bRequestSuccessful && eStatusCode == k_EHTTPStatusCode200OK)
 	{
+		LogRequest(iClient, iType, true);
+		
 		int iSize;
 		
 		SteamWorks_GetHTTPResponseBodySize(hRequest, iSize);
+		
+		if (iSize >= 2048)
+			return;
 		
 		char[] sBody = new char[iSize];
 		
@@ -193,9 +197,7 @@ public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bReques
 		if (iType == t_PROFILE)
 			ParseProfile(sBody, iClient);
 		else if (iType == t_INVENTORY)
-			ParseInventory(sBody, iClient);
-			
-		LogRequest(iClient, iType, true);
+			ParseInventory(sBody, iClient);	
 	} 
 	else
 	{
@@ -215,7 +217,12 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 	
 	if (requestSuccessful && statusCode == HTTPStatusCode_OK)
 	{
+		LogRequest(iClient, iType, true);
+		
 		int iSize = Steam_GetHTTPResponseBodySize(HTTPRequest);
+		
+		if (iSize >= 2048)
+			return;
 		
 		char[] sBody = new char[iSize];
 		
@@ -226,7 +233,6 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 		else if (iType == t_INVENTORY)
 			ParseInventory(sBody, iClient);
 			
-		LogRequest(iClient, iType, true);
 	}
 	else
 	{
