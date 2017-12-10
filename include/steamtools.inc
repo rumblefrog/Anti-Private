@@ -290,6 +290,51 @@ native Float:Steam_GetHTTPDownloadProgressPercent(HTTPRequestHandle:HTTPRequest)
 native bool:Steam_SetHTTPRequestRawPostBody(HTTPRequestHandle:HTTPRequest, const String:data[], dataLength, const String:contentType[]="text/plain");
 native bool:Steam_SetHTTPRequestRawPostBodyFile(HTTPRequestHandle:HTTPRequest, const String:filePath[], const String:contentType[]="text/plain");
 
+#if !defined REQUIRE_EXTENSIONS
+public __ext_SteamTools_SetNTVOptional()
+{
+	MarkNativeAsOptional("Steam_IsVACEnabled");
+	MarkNativeAsOptional("Steam_GetPublicIP");
+	MarkNativeAsOptional("Steam_RequestGroupStatus");
+	MarkNativeAsOptional("Steam_IsConnected");
+	MarkNativeAsOptional("Steam_SetRule");
+	MarkNativeAsOptional("Steam_ClearRules");
+	MarkNativeAsOptional("Steam_ForceHeartbeat");
+	MarkNativeAsOptional("Steam_SetGameDescription");
+	MarkNativeAsOptional("Steam_RequestStats");
+	MarkNativeAsOptional("Steam_GetStat");
+	MarkNativeAsOptional("Steam_GetStatFloat");
+	MarkNativeAsOptional("Steam_IsAchieved");
+	MarkNativeAsOptional("Steam_GetNumClientSubscriptions");
+	MarkNativeAsOptional("Steam_GetClientSubscription");
+	MarkNativeAsOptional("Steam_GetNumClientDLCs");
+	MarkNativeAsOptional("Steam_GetClientDLC");
+	MarkNativeAsOptional("Steam_GetCSteamIDForClient");
+	MarkNativeAsOptional("Steam_SetCustomSteamID");
+	MarkNativeAsOptional("Steam_GetCustomSteamID");
+	MarkNativeAsOptional("Steam_RenderedIDToCSteamID");
+	MarkNativeAsOptional("Steam_CSteamIDToRenderedID");
+	MarkNativeAsOptional("Steam_GroupIDToCSteamID");
+	MarkNativeAsOptional("Steam_CSteamIDToGroupID");
+	MarkNativeAsOptional("Steam_CreateHTTPRequest");
+	MarkNativeAsOptional("Steam_SetHTTPRequestNetworkActivityTimeout");
+	MarkNativeAsOptional("Steam_SetHTTPRequestHeaderValue");
+	MarkNativeAsOptional("Steam_SetHTTPRequestGetOrPostParameter");
+	MarkNativeAsOptional("Steam_SendHTTPRequest");
+	MarkNativeAsOptional("Steam_DeferHTTPRequest");
+	MarkNativeAsOptional("Steam_PrioritizeHTTPRequest");
+	MarkNativeAsOptional("Steam_GetHTTPResponseHeaderSize");
+	MarkNativeAsOptional("Steam_GetHTTPResponseHeaderValue");
+	MarkNativeAsOptional("Steam_GetHTTPResponseBodySize");
+	MarkNativeAsOptional("Steam_GetHTTPResponseBodyData");
+	MarkNativeAsOptional("Steam_WriteHTTPResponseBody");
+	MarkNativeAsOptional("Steam_ReleaseHTTPRequest");
+	MarkNativeAsOptional("Steam_GetHTTPDownloadProgressPercent");
+	MarkNativeAsOptional("Steam_SetHTTPRequestRawPostBody");
+	MarkNativeAsOptional("Steam_SetHTTPRequestRawPostBodyFile");
+}
+#endif
+
 public Extension:__ext_SteamTools =
 {
 	name = "SteamTools",

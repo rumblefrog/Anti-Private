@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "1.2.5"
+#define PLUGIN_VERSION "1.2.6"
 
 #include <sourcemod>
 #include <smjansson>
@@ -255,6 +255,10 @@ void ParseProfile(const char[] sBody, int iClient)
 		return;
 	
 	int iState = json_object_get_int(hPlayer, "communityvisibilitystate");
+	
+	if (hPlayer == INVALID_HANDLE) // I have no idea why the handle goes invalid here
+		return;
+		
 	int iProfile = json_object_get_int(hPlayer, "profilestate");
 	
 	if (iState == 3 && iProfile == 1)
