@@ -5,7 +5,7 @@
 		"en"	"Please make your Steam profile public"
 		"es"	"Por favor haz tu perfil de Steam público"
 		"hu"	"Kérlek állítsd a Steam profilod publikusra!"
-		"fr"	"Vous devez mettre votre profil public !"
+		"fr"	"Vous devez mettre votre profil Steam public !"
 	}
 	"Private Inventory"
 	{
