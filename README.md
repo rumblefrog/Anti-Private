@@ -9,7 +9,6 @@
 <p align="center">
 	<a href="https://travis-ci.org/RumbleFrog/Anti-Private"><img alt="Travis CI Status" src="https://img.shields.io/travis/RumbleFrog/Anti-Private.svg?style=flat-square"></a>
 	<a href="https://github.com/RumbleFrog/Anti-Private/issues"><img alt="Issues" src="https://img.shields.io/github/issues/RumbleFrog/Anti-Private.svg?style=flat-square"></a>
-	<a href="https://discord.gg/gh8uMa9"><img src="https://img.shields.io/discord/364849839508553730.svg?style=flat-square"></a>
 	<img alt="Downloads" src="https://img.shields.io/github/downloads/RumbleFrog/Anti-Private/total.svg?style=flat-square">
 </p>
 
