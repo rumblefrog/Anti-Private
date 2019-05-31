@@ -18,7 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Fishy"
-#define PLUGIN_VERSION "1.2.6"
+#define PLUGIN_VERSION "1.2.7"
+
+#define DEBUG
 
 #include <sourcemod>
 #include <smjansson>
@@ -152,6 +154,10 @@ public void OnClientPostAdminCheck(int iClient)
 		
 		if (!SteamWorks_SendHTTPRequest(hPlayerRequest))
 		{
+			#if defined DEBUG
+				PrintToServer("SteamWorks_SendHTTPRequest Failed");
+			#endif
+
 			CloseHandle(hPlayerRequest);
 			HandleHTTPError(iClient);
 			LogRequest(iClient, t_PROFILE, false);
@@ -170,6 +176,10 @@ public void OnClientPostAdminCheck(int iClient)
 		
 		if (!Steam_SendHTTPRequest(hPlayerRequest, OnSteamToolsHTTPComplete, iClient))
 		{
+			#if defined DEBUG
+				PrintToServer("Steam_SendHTTPRequest Failed");
+			#endif
+
 			Steam_ReleaseHTTPRequest(hPlayerRequest);
 			HandleHTTPError(iClient);
 			LogRequest(iClient, t_PROFILE, false);
@@ -201,6 +211,10 @@ public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bReques
 	} 
 	else
 	{
+		#if defined DEBUG
+				PrintToServer("OnSteamWorksHTTPComplete Failed, Status Code: %d", eStatusCode);
+		#endif
+
 		HandleHTTPError(iClient);
 		LogRequest(iClient, iType, false);
 	}
@@ -236,6 +250,10 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 	}
 	else
 	{
+		#if defined DEBUG
+				PrintToServer("OnSteamToolsHTTPComplete Failed, Status Code: %d", statusCode);
+		#endif
+
 		HandleHTTPError(iClient);
 		LogRequest(iClient, iType, false);
 	}
