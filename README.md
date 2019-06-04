@@ -20,7 +20,7 @@
 
 - **sm_anti_private_deal_method** Method of action when private profile/inventory has been detected (1 - Kick, 2 - Warn) [Default: **1.0**] (Min: **1.0**) (Max: **2.0**)
 
-- **sm_anti_private_fail_method** Method of action when the plugin fails to fetch result (1 - Nothing, 2 - Kick) [Default: **1.0**] (Min: **1.0**) (Max: **2.0**)
+- **sm_anti_private_fail_method** Method of action when the plugin fails to fetch result (1 - Nothing, 2 - Kick), if you are checking csgo inventory plz set it to 2 [Default: **1.0**] (Min: **1.0**) (Max: **2.0**)
 
 - **sm_anti_private_log** Whether or not to log HTTP requests to file (0 - Disable logging, 1 - Enable logging) [Default: **1.0**] (Min: **0.0**) (Max: **1.0**)
 
@@ -60,6 +60,11 @@ If you wish to contribute to the phrases file, please fork this repository and o
 # Download
 
 Download the latest version from the [release](https://github.com/RumbleFrog/Anti-Private/releases) page
+
+# Credit
+
+<a href="https://github.com/LemonPAKA/" target="_blank">LemonPAKA</a> added Simplified Chinese Translation and CSGO 
+Inventory Private Check(it works but I am still want someone make a better version).
 
 # License
 
