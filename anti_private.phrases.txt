@@ -1,4 +1,4 @@
-"Phrases"
+﻿"Phrases"
 {
 	"Private Profile"
 	{
@@ -6,6 +6,7 @@
 		"es"	"Por favor haz tu perfil de Steam público"
 		"hu"	"Kérlek állítsd a Steam profilod publikusra"
 		"fr"	"Veuillez rendre votre profil Steam public"
+		"chi"	"请将您的个人主页资料设为公开"
 	}
 	"Private Inventory"
 	{
@@ -13,6 +14,7 @@
 		"es"	"Por favor haz tu inventario de Steam público"
 		"hu"	"Kérlek állítsd a Steam raktárad publikusra"
 		"fr"	"Veuillez rendre votre inventaire Steam public"
+		"chi"	"请将您的STEAM库存设为公开"
 	}
 	"Error"
 	{
@@ -20,5 +22,6 @@
 		"es"	"Estamos teniendo dificultades validando la publicidad de tu perfil, por favor intente unirse nuevamente más tarde"
 		"hu"	"Probléma van a publikusság ellenőrzésével, kérlek próbáld újra később!"
 		"fr"	"Votre profil n'a pu être validé pour une raison inconnue, réessayez ultérieurement"
+		"chi"	"我们无法验证您的个人主页是否公开，请稍后重试"
 	}
 }
