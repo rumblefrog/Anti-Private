@@ -372,57 +372,6 @@ void ParseProfile(const char[] sBody, int iClient)
 		}
 		}
 	}
-	/*if (iState == 3 && iProfile == 1)
-	{
-		if (!bInventory)
-			return;
-		
-		switch (GetEngineVersion())
-		{
-			case Engine_TF2, Engine_DOTA, Engine_Portal2: {}
-			default:
-				return;
-		}
-		
-		char SteamID[64];
-	
-		GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
-	
-		if (STEAMWORKS_AVAILABLE())
-		{
-			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
-			
-			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
-			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
-			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_INVENTORY);
-			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete);
-			
-			if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
-			{
-				CloseHandle(hInventoryRequest);
-				HandleHTTPError(iClient);
-				LogRequest(iClient, t_INVENTORY, false);
-			}
-		}
-		else if (STEAMTOOLS_AVAILABLE())
-		{
-			HTTPRequestHandle hInventoryRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, InventoryURL);
-			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
-			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
-		
-			DataPack pData = new DataPack();
-		
-			pData.WriteCell(iClient);
-			pData.WriteCell(t_INVENTORY);
-		
-			if (!Steam_SendHTTPRequest(hInventoryRequest, OnSteamToolsHTTPComplete, iClient))
-			{
-				Steam_ReleaseHTTPRequest(hInventoryRequest);
-				HandleHTTPError(iClient);
-				LogRequest(iClient, t_INVENTORY, false);
-			}
-		}
-	}*/
 	else
 		HandleDeal(t_PROFILE, iClient);
 }
@@ -430,11 +379,6 @@ void ParseProfile(const char[] sBody, int iClient)
 void ParseInventory(const char[] sBody, int iClient)
 {
 	Handle hJson = json_load(sBody);
-	//Handle hResult = json_object_get(hJson, "result");
-	
-	//int iState = json_object_get_int(hResult, "status");
-	
-	//if (iState != 1)
 	if(GetEngineVersion()==Engine_CSGO)
 	{
 		bool iState = json_object_get_bool(hJson,"success");
