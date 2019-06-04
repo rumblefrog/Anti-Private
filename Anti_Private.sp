@@ -85,6 +85,7 @@ public void OnPluginStart()
 			InventoryURL = "https://api.steampowered.com/IEconItems_570/GetPlayerItems/v1/";
 		case Engine_Portal2:
 			InventoryURL = "https://api.steampowered.com/IEconItems_620/GetPlayerItems/v1/";
+		case Engine_CSGO: {}
 		default:
 			LogMessage("This game does not support private inventory check");
 	}
@@ -94,7 +95,7 @@ public void OnPluginStart()
 	cKey = CreateConVar("sm_anti_private_key", "", "Steam Developer API Key", FCVAR_NONE | FCVAR_PROTECTED);
 	cInventory = CreateConVar("sm_anti_private_inventory", "1", "0 - Disable inventory checking, 1 - Enable inventory checking", FCVAR_NONE, true, 0.0, true, 1.0);
 	cDeal = CreateConVar("sm_anti_private_deal_method", "1", "1 - Kicks them from the server, 2 - Warns them", FCVAR_NONE, true, 1.0, true, 2.0);
-	cFail = CreateConVar("sm_anti_private_fail_method", "1", "1 - Allow them to stay on the server, 2 - Kicks them from the server", FCVAR_NONE, true, 1.0, true, 2.0);
+	cFail = CreateConVar("sm_anti_private_fail_method", "1", "1 - Allow them to stay on the server, 2 - Kicks them from the server, if you are checking csgo inventory plz set it to 2", FCVAR_NONE, true, 1.0, true, 2.0);
 	cLog = CreateConVar("sm_anti_private_log", "1", "0 - Disable logging, 1 - Enable logging", FCVAR_NONE, true, 0.0, true, 1.0);
 	
 	RegAdminCmd("anti_private_admin", CmdVoid, ADMFLAG_RESERVATION, "Checks user permission level");
@@ -278,8 +279,100 @@ void ParseProfile(const char[] sBody, int iClient)
 		return;
 		
 	int iProfile = json_object_get_int(hPlayer, "profilestate");
-	
+
 	if (iState == 3 && iProfile == 1)
+	{
+		if (!bInventory)
+			return;
+			
+		char SteamID[64];
+	
+		GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
+		//switch (GetEngineVersion())
+		//{
+			//case Engine_CSGO:
+				//Format(InventoryURL,sizeof(InventoryURL),"https://steamcommunity.com/profiles/%s/inventory/json/730/2", SteamID);
+		//}
+		switch (GetEngineVersion())
+		{
+			case Engine_TF2, Engine_DOTA, Engine_Portal2: {}
+			case Engine_CSGO:
+				Format(InventoryURL,sizeof(InventoryURL),"https://steamcommunity.com/profiles/%s/inventory/json/730/2", SteamID);
+			default:
+				return;
+		}
+		if(GetEngineVersion()==Engine_CSGO)
+		{
+			if (STEAMWORKS_AVAILABLE())
+			{
+				Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
+
+				SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_INVENTORY);
+				SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete);
+			
+				if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
+				{
+					CloseHandle(hInventoryRequest);
+					HandleHTTPError(iClient);
+					LogRequest(iClient, t_INVENTORY, false);
+				}
+			}
+			else if (STEAMTOOLS_AVAILABLE())
+			{
+				HTTPRequestHandle hInventoryRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, InventoryURL);
+		
+				DataPack pData = new DataPack();
+		
+				pData.WriteCell(iClient);
+				pData.WriteCell(t_INVENTORY);
+		
+				if (!Steam_SendHTTPRequest(hInventoryRequest, OnSteamToolsHTTPComplete, iClient))
+				{
+					Steam_ReleaseHTTPRequest(hInventoryRequest);
+					HandleHTTPError(iClient);
+					LogRequest(iClient, t_INVENTORY, false);
+				}
+			}
+		}
+		else
+		{
+					if (STEAMWORKS_AVAILABLE())
+		{
+			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
+			
+			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
+			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
+			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_INVENTORY);
+			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete);
+			
+			if (!SteamWorks_SendHTTPRequest(hInventoryRequest))
+			{
+				CloseHandle(hInventoryRequest);
+				HandleHTTPError(iClient);
+				LogRequest(iClient, t_INVENTORY, false);
+			}
+		}
+		else if (STEAMTOOLS_AVAILABLE())
+		{
+			HTTPRequestHandle hInventoryRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, InventoryURL);
+			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
+			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
+		
+			DataPack pData = new DataPack();
+		
+			pData.WriteCell(iClient);
+			pData.WriteCell(t_INVENTORY);
+		
+			if (!Steam_SendHTTPRequest(hInventoryRequest, OnSteamToolsHTTPComplete, iClient))
+			{
+				Steam_ReleaseHTTPRequest(hInventoryRequest);
+				HandleHTTPError(iClient);
+				LogRequest(iClient, t_INVENTORY, false);
+			}
+		}
+		}
+	}
+	/*if (iState == 3 && iProfile == 1)
 	{
 		if (!bInventory)
 			return;
@@ -329,7 +422,7 @@ void ParseProfile(const char[] sBody, int iClient)
 				LogRequest(iClient, t_INVENTORY, false);
 			}
 		}
-	}
+	}*/
 	else
 		HandleDeal(t_PROFILE, iClient);
 }
@@ -337,13 +430,24 @@ void ParseProfile(const char[] sBody, int iClient)
 void ParseInventory(const char[] sBody, int iClient)
 {
 	Handle hJson = json_load(sBody);
+	//Handle hResult = json_object_get(hJson, "result");
 	
-	Handle hResult = json_object_get(hJson, "result");
+	//int iState = json_object_get_int(hResult, "status");
 	
-	int iState = json_object_get_int(hResult, "status");
-	
-	if (iState != 1)
-		HandleDeal(t_INVENTORY, iClient);
+	//if (iState != 1)
+	if(GetEngineVersion()==Engine_CSGO)
+	{
+		bool iState = json_object_get_bool(hJson,"success");
+		if(!iState)
+			HandleDeal(t_INVENTORY, iClient);
+	}
+	else
+	{
+		Handle hResult = json_object_get(hJson, "result");
+		int iState = json_object_get_int(hResult, "status");
+		if (iState != 1)	
+			HandleDeal(t_INVENTORY, iClient);		
+	}
 }
 
 void HandleDeal(RequestType iType, int iClient)
