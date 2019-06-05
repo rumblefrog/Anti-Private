@@ -85,6 +85,8 @@ public void OnPluginStart()
 			InventoryURL = "https://api.steampowered.com/IEconItems_570/GetPlayerItems/v1/";
 		case Engine_Portal2:
 			InventoryURL = "https://api.steampowered.com/IEconItems_620/GetPlayerItems/v1/";
+		case Engine_CSGO:
+			InventoryURL = "https://steamcommunity.com/inventory/76561198XXXXxxxx/730/2/";   //just show it as a sample
 		default:
 			LogMessage("This game does not support private inventory check");
 	}
@@ -209,6 +211,8 @@ public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bReques
 		else if (iType == t_INVENTORY)
 			ParseInventory(sBody, iClient);	
 	} 
+	else if(GetEngineVersion()==Engine_CSGO&&k_EHTTPStatusCode204NoContent)
+		HandleDeal(iType, iClient);
 	else
 	{
 		#if defined DEBUG
@@ -284,23 +288,29 @@ void ParseProfile(const char[] sBody, int iClient)
 		if (!bInventory)
 			return;
 		
+		char SteamID[64];
+		GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
 		switch (GetEngineVersion())
 		{
 			case Engine_TF2, Engine_DOTA, Engine_Portal2: {}
+			case Engine_CSGO:
+				Format(InventoryURL,sizeof(InventoryURL),"https://steamcommunity.com/inventory/%s/730/2", SteamID);
 			default:
 				return;
 		}
 		
-		char SteamID[64];
+		
 	
-		GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
+		
 	
 		if (STEAMWORKS_AVAILABLE())
 		{
 			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
-			
+			if(GetEngineVersion()!=Engine_CSGO)
+			{
 			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
 			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
+			}
 			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_INVENTORY);
 			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete);
 			
@@ -314,9 +324,11 @@ void ParseProfile(const char[] sBody, int iClient)
 		else if (STEAMTOOLS_AVAILABLE())
 		{
 			HTTPRequestHandle hInventoryRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, InventoryURL);
+			if(GetEngineVersion()!=Engine_CSGO)
+			{
 			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
 			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
-		
+			}
 			DataPack pData = new DataPack();
 		
 			pData.WriteCell(iClient);
