@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available)
 
 #define PlayerURL "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
+#define InventoryURL "https://steamcommunity.com/inventory/%s/440/2?l=english&count=1"
 
 enum RequestType
 {
@@ -56,7 +57,7 @@ enum FailMethod
 
 ConVar cKey, cDeal, cFail, cInventory, cLog;
 
-char sDKey[64], InventoryURL[256], LogPath[PLATFORM_MAX_PATH];
+char sDKey[64], LogPath[PLATFORM_MAX_PATH];
 
 bool bInventory = true, bLog = true;
 
@@ -77,18 +78,6 @@ public void OnPluginStart()
 	if (!STEAMTOOLS_AVAILABLE() && !STEAMWORKS_AVAILABLE())
 		SetFailState("This plugin requires either SteamWorks OR SteamTools");
 		
-	switch (GetEngineVersion())
-	{
-		case Engine_TF2:
-			InventoryURL = "https://api.steampowered.com/IEconItems_440/GetPlayerItems/v0001/";
-		case Engine_DOTA:
-			InventoryURL = "https://api.steampowered.com/IEconItems_570/GetPlayerItems/v1/";
-		case Engine_Portal2:
-			InventoryURL = "https://api.steampowered.com/IEconItems_620/GetPlayerItems/v1/";
-		default:
-			LogMessage("This game does not support private inventory check");
-	}
-	
 	CreateConVar("sm_anti_private_version", PLUGIN_VERSION, "Anti Private Version", FCVAR_REPLICATED | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
 	cKey = CreateConVar("sm_anti_private_key", "", "Steam Developer API Key", FCVAR_NONE | FCVAR_PROTECTED);
@@ -189,36 +178,48 @@ public void OnClientPostAdminCheck(int iClient)
 
 public int OnSteamWorksHTTPComplete(Handle hRequest, bool bFailure, bool bRequestSuccessful, EHTTPStatusCode eStatusCode, int iClient, RequestType iType)
 {
-	if (bRequestSuccessful && eStatusCode == k_EHTTPStatusCode200OK)
+	if(eStatusCode == k_EHTTPStatusCode403Forbidden && iType = t_INVENTORY)
 	{
-		LogRequest(iClient, iType, true);
-		
 		int iSize;
-		
 		SteamWorks_GetHTTPResponseBodySize(hRequest, iSize);
-		
-		if (iSize >= 2048)
-			return;
-		
 		char[] sBody = new char[iSize];
-		
 		SteamWorks_GetHTTPResponseBodyData(hRequest, sBody, iSize);
-		
-		if (iType == t_PROFILE)
-			ParseProfile(sBody, iClient);
-		else if (iType == t_INVENTORY)
-			ParseInventory(sBody, iClient);	
-	} 
+		if(StrEqual(sBody, "null")) {
+			LogRequest(iClient, iType, true);
+			HandleDeal(iClient, iType);
+			return;
+		}
+	}
 	else
 	{
-		#if defined DEBUG
-				PrintToServer("OnSteamWorksHTTPComplete Failed, Status Code: %d", eStatusCode);
-		#endif
+		if (bRequestSuccessful && eStatusCode == k_EHTTPStatusCode200OK)
+		{
+			LogRequest(iClient, iType, true);
+			
+			int iSize;
+			
+			SteamWorks_GetHTTPResponseBodySize(hRequest, iSize);
+			
+			if (iSize >= 2048)
+				return;
+			
+			char[] sBody = new char[iSize];
+			
+			SteamWorks_GetHTTPResponseBodyData(hRequest, sBody, iSize);
+			
+			if (iType == t_PROFILE)
+				ParseProfile(sBody, iClient);
+		} 
+		else
+		{
+			#if defined DEBUG
+					PrintToServer("OnSteamWorksHTTPComplete Failed, Status Code: %d", eStatusCode);
+			#endif
 
-		HandleHTTPError(iClient);
-		LogRequest(iClient, iType, false);
+			HandleHTTPError(iClient);
+			LogRequest(iClient, iType, false);
+		}
 	}
-	
 	CloseHandle(hRequest);
 }
 
@@ -229,35 +230,45 @@ public int OnSteamToolsHTTPComplete(HTTPRequestHandle HTTPRequest, bool requestS
 	int iClient = pData.ReadCell();
 	RequestType iType = view_as<RequestType>(pData.ReadCell());
 	
-	if (requestSuccessful && statusCode == HTTPStatusCode_OK)
+	if(statusCode = HTTPStatusCode_Forbidden && iType == t_INVENTORY)
 	{
-		LogRequest(iClient, iType, true);
-		
 		int iSize = Steam_GetHTTPResponseBodySize(HTTPRequest);
-		
-		if (iSize >= 2048)
-			return;
-		
 		char[] sBody = new char[iSize];
-		
 		Steam_GetHTTPResponseBodyData(HTTPRequest, sBody, iSize);
-		
-		if (iType == t_PROFILE)
-			ParseProfile(sBody, iClient);
-		else if (iType == t_INVENTORY)
-			ParseInventory(sBody, iClient);
-			
+		if(StrEqual(sBody, "null"))
+		{
+			LogRequest(iClient, iType, true);
+			HandleDeal(iClient, iType);
+		}
 	}
 	else
 	{
-		#if defined DEBUG
-				PrintToServer("OnSteamToolsHTTPComplete Failed, Status Code: %d", statusCode);
-		#endif
+		if (requestSuccessful && statusCode == HTTPStatusCode_OK)
+		{
+			LogRequest(iClient, iType, true);
+			
+			int iSize = Steam_GetHTTPResponseBodySize(HTTPRequest);
+			
+			if (iSize >= 2048)
+				return;
+			
+			char[] sBody = new char[iSize];
+			
+			Steam_GetHTTPResponseBodyData(HTTPRequest, sBody, iSize);
+			
+			if (iType == t_PROFILE)
+				ParseProfile(sBody, iClient);
+		}
+		else
+		{
+			#if defined DEBUG
+					PrintToServer("OnSteamToolsHTTPComplete Failed, Status Code: %d", statusCode);
+			#endif
 
-		HandleHTTPError(iClient);
-		LogRequest(iClient, iType, false);
+			HandleHTTPError(iClient);
+			LogRequest(iClient, iType, false);
+		}
 	}
-	
 	Steam_ReleaseHTTPRequest(HTTPRequest);
 }
 
@@ -284,23 +295,17 @@ void ParseProfile(const char[] sBody, int iClient)
 		if (!bInventory)
 			return;
 		
-		switch (GetEngineVersion())
-		{
-			case Engine_TF2, Engine_DOTA, Engine_Portal2: {}
-			default:
-				return;
-		}
-		
 		char SteamID[64];
 	
 		GetClientAuthId(iClient, AuthId_SteamID64, SteamID, sizeof SteamID);
 	
+		char url[128];
+		Format(url, sizeof(url), InventoryURL, SteamID);
+
 		if (STEAMWORKS_AVAILABLE())
 		{
-			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, InventoryURL);
+			Handle hInventoryRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, url);
 			
-			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
-			SteamWorks_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
 			SteamWorks_SetHTTPRequestContextValue(hInventoryRequest, iClient, t_INVENTORY);
 			SteamWorks_SetHTTPCallbacks(hInventoryRequest, OnSteamWorksHTTPComplete);
 			
@@ -313,9 +318,7 @@ void ParseProfile(const char[] sBody, int iClient)
 		}
 		else if (STEAMTOOLS_AVAILABLE())
 		{
-			HTTPRequestHandle hInventoryRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, InventoryURL);
-			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "key", sDKey);
-			Steam_SetHTTPRequestGetOrPostParameter(hInventoryRequest, "steamid", SteamID);
+			HTTPRequestHandle hInventoryRequest = Steam_CreateHTTPRequest(HTTPMethod_GET, url);
 		
 			DataPack pData = new DataPack();
 		
@@ -332,18 +335,6 @@ void ParseProfile(const char[] sBody, int iClient)
 	}
 	else
 		HandleDeal(t_PROFILE, iClient);
-}
-
-void ParseInventory(const char[] sBody, int iClient)
-{
-	Handle hJson = json_load(sBody);
-	
-	Handle hResult = json_object_get(hJson, "result");
-	
-	int iState = json_object_get_int(hResult, "status");
-	
-	if (iState != 1)
-		HandleDeal(t_INVENTORY, iClient);
 }
 
 void HandleDeal(RequestType iType, int iClient)
