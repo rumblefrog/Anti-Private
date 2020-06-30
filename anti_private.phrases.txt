@@ -6,6 +6,7 @@
 		"es"	"Por favor haz tu perfil de Steam público"
 		"hu"	"Kérlek állítsd a Steam profilod publikusra"
 		"fr"	"Veuillez rendre votre profil Steam public"
+		"ru"	"Пожалуйста, сделайте свой профиль Steam общедоступным"
 	}
 	"Private Inventory"
 	{
@@ -13,6 +14,7 @@
 		"es"	"Por favor haz tu inventario de Steam público"
 		"hu"	"Kérlek állítsd a Steam raktárad publikusra"
 		"fr"	"Veuillez rendre votre inventaire Steam public"
+		"ru"	"Пожалуйста, сделайте ваш инвентарь Steam общедоступным"
 	}
 	"Error"
 	{
@@ -20,5 +22,6 @@
 		"es"	"Estamos teniendo dificultades validando la publicidad de tu perfil, por favor intente unirse nuevamente más tarde"
 		"hu"	"Probléma van a publikusság ellenőrzésével, kérlek próbáld újra később!"
 		"fr"	"Votre profil n'a pu être validé pour une raison inconnue, réessayez ultérieurement"
+		"ru"	"У нас проблемы с проверкой общедоступности вашего профиля, повторите попытку позже."
 	}
 }
